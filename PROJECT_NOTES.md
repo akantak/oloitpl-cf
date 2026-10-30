@@ -85,3 +85,11 @@ Latest requested change (two Medium imports and blog index) is prepared locally 
 ## Session convention
 
 User requests one completion ding immediately before every final response: `afplay /System/Library/Sounds/Glass.aiff`. No sounds for intermediate updates. If audio is unavailable, finish without it.
+
+## Style update
+
+All pages now use shared CSS variables, a consistent reading width, serif heading hierarchy, neutral paper background, teal links, responsive spacing, and keyboard focus styles. Blog index, articles, and 404 share Home/Blog navigation and author/All articles footers; the homepage retains only photo, name, and three requested links. Article headers match, original prose/dates/code/images remain unchanged. The 404 blog link label was corrected. RSS was recommended as a future addition, not implemented. Updated ZIP prepared; deployment and visual verification still pending.
+
+## Git deployment setup
+
+Remote discovered: `https://github.com/akantak/oloitpl-cf.git`, branch `main`. Added root `wrangler.jsonc` targeting Worker `blog`, assets `./dist`, custom 404 handling, and existing apex/www custom domains. Cloudflare Worker Settings → Build should connect that repository with an empty build command, deploy command `npx wrangler deploy`, and repository root as root directory. No application secrets required. Config and pending style changes have not been committed or pushed by the assistant. Git integration has not been verified connected.

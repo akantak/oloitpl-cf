@@ -11,3 +11,14 @@ Upload `oloit-home-and-blog.zip` as a new deployment of the existing Cloudflare 
 Medium articles were imported from the author's public RSS feed with their original publication dates and complete bodies. Four article images are hosted locally; original image credits and references are retained. Medium tracking pixels were removed. Both imported articles end with a Medium source link. Existing Hugo article URLs redirect to the proxy article.
 
 Edit the HTML and CSS directly, then ZIP the contents of `dist`, with index.html at the root. Local links, images, publication dates, code blocks, and redirect targets were checked. Browser layout has not been verified in this environment.
+
+## Deploy automatically from GitHub
+
+Repository: `akantak/oloitpl-cf`, production branch: `main`. Connect the repository from the existing `blog` Worker's Settings → Build page.
+
+- Root directory: repository root (`/` or leave blank)
+- Build command: empty (the HTML/CSS files are ready to serve)
+- Deploy command: `npx wrangler deploy`
+- Build variables/secrets: none needed for this site; use Cloudflare's default build authentication
+
+`wrangler.jsonc` targets Worker `blog`, serves `dist/`, and declares both existing custom domains. Commit and push the config and site changes before triggering deployment. Do not set the root directory to `dist`: Wrangler's config is at the repository root. ZIP uploads are optional once Git deployment is connected.
