@@ -1,2 +1,7 @@
 .DS_Store
 *.zip
+
+# Local Wrangler tooling and Python caches
+node_modules/
+.wrangler/
+__pycache__/

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>All those things about corpo proxy I wish I knew from the day one · Aleksander Kantak</title><meta name="description" content="A practical guide to corporate proxies, VPN connections and no_proxy troubleshooting, with diagrams and configuration examples."><link rel="canonical" href="https://oloit.pl/blog/corporate-proxy/"><link rel="stylesheet" href="/style.css"></head><body><a class="skip" href="#article">Skip to article</a><header class="site-header"><a class="brand" href="/">Aleksander Kantak</a><nav aria-label="Site"><a href="/">Home</a><a href="/blog/">Blog</a></nav></header><main id="article"><article><div class="article-heading"><h1>All those things about corpo proxy I wish I knew from the day one</h1><p class="byline">Aleksander Kantak · <time datetime="2025-11-22">22 November 2025</time></p></div><nav class="contents" aria-label="Article contents"><details><summary>In this article</summary><div class="links"><a href="#level-none">Level none</a><a href="#level-entry">Level entry</a><a href="#level-easy">Level easy</a><a href="#level-easy-1">Level easy+</a><a href="#level-medium">Level medium</a><a href="#level-hard">Level hard</a><a href="#lets-talk-about-no_proxy">Let&rsquo;s talk about no_proxy</a><a href="#sum-up">Sum up</a></div></details></nav><p>Corporations with hardware products likes guarding their assortment (both hardware and people) with proxy.
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>All those things about corpo proxy I wish I knew from the day one · Aleksander Kantak</title><meta name="description" content="A practical guide to corporate proxies, VPN connections and no_proxy troubleshooting, with diagrams and configuration examples."><link rel="canonical" href="https://oloit.pl/blog/corporate-proxy/"><link rel="stylesheet" href="/style.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "All those things about corpo proxy I wish I knew from the day one", "datePublished": "2025-11-22T20:45:15+01:00", "author": {"@type": "Person", "name": "Aleksander Kantak"}, "url": "https://oloit.pl/blog/corporate-proxy/"}</script></head><body><a class="skip" href="#article">Skip to article</a><header class="site-header"><a class="brand" href="/">Aleksander Kantak</a><nav aria-label="Site"><a href="/">Home</a><a href="/blog/">Blog</a></nav></header><main id="article"><article><div class="article-heading"><h1>All those things about corpo proxy I wish I knew from the day one</h1><p class="byline">Aleksander Kantak · <time datetime="2025-11-22">22 November 2025</time></p></div><nav class="contents" aria-label="Article contents"><details><summary>In this article</summary><div class="links"><a href="#level-none">Level none</a><a href="#level-entry">Level entry</a><a href="#level-easy">Level easy</a><a href="#level-easy-1">Level easy+</a><a href="#level-medium">Level medium</a><a href="#level-hard">Level hard</a><a href="#lets-talk-about-no_proxy">Let&rsquo;s talk about no_proxy</a><a href="#sum-up">Sum up</a></div></details></nav><p>Corporations with hardware products likes guarding their assortment (both hardware and people) with proxy.
 I got that pleasure to work for a few companies that used company proxy and spent countless hours on troubleshooting
 things that finally turned out to be proxy/no_proxy issues.</p>
 <p>What is a proxy? As Wikipedia says:</p>
@@ -21,12 +21,12 @@ Day one, you got access to the corporation&rsquo;s VPN to connect to the company
 <p>Let&rsquo;s iterate over a few levels of proxy interactions.</p>
 <h2 id="level-none">Level none</h2>
 <p>You have not connected to VPN yet, connection doesn&rsquo;t need any proxy yet. Plain and simple.</p>
-<p><img src="/proxy/none.png" alt="None"></p>
+<p><img loading="lazy" width="830" height="530" src="/proxy/none.png" alt="Network diagram: connecting without a VPN or proxy"></p>
 <h2 id="level-entry">Level entry</h2>
 <p>You connect to that corpo VPN and you are trying to access intranet (ex. that internal news page)
 on URL <em><a href="http://intranet.example.com">http://intranet.example.com</a></em> or your team&rsquo;s test environment at <em><a href="http://10.1.2.3">http://10.1.2.3</a></em>. That&rsquo;s easy.
 Neither proxy nor no_proxy set yet, and it works out-of-the-box.</p>
-<p><img src="/proxy/entry.png" alt="Entry"></p>
+<p><img loading="lazy" width="830" height="530" src="/proxy/entry.png" alt="Network diagram: accessing internal resources through the corporate VPN"></p>
 <h2 id="level-easy">Level easy</h2>
 <p>Now, after you&rsquo;ve read all those great news that your employer has shared, completed trainings on internal web page,
 it&rsquo;s time to access public pages. Let&rsquo;s start small, with accessing <a href="http://google.com">http://google.com</a>.
@@ -57,7 +57,7 @@ In HTTPS proxy use exactly the same value (unless your corpo has different port 
 </code></pre>
 <p>Just for now, in case you would test something locally. Save, and we are all set.
 Back to the Google page. Refresh, and it SHOULD work now.</p>
-<p><img src="/proxy/easy.png" alt="Easy"></p>
+<p><img loading="lazy" width="830" height="530" src="/proxy/easy.png" alt="Network diagram: accessing the internet through the corporate proxy"></p>
 <h2 id="level-easy-1">Level easy+</h2>
 <p>You did your things there time to finish your day one and disconnect the VPN.</p>
 <p>But beware, because once you disconnect the VPN, external connections would stop working
@@ -65,7 +65,7 @@ as proxy server won&rsquo;t be achievable. So you need to disable that proxy set
 <p>Don&rsquo;t do it manually,
 removing proxy entry in the browser, or switching to &ldquo;no proxy&rdquo; setting. To do that switching easily,
 I recommend using a browser extension like Proxy SwitchyOmega or similar.</p>
-<p><img src="/proxy/easy-plus.png" alt="Easy plus"></p>
+<p><img loading="lazy" width="838" height="530" src="/proxy/easy-plus.png" alt="Network diagram: disconnecting the VPN while proxy settings remain enabled"></p>
 <h2 id="level-medium">Level medium</h2>
 <p>Let&rsquo;s start using shell with proxy. Good tools should handle both lower case and upper case proxy definitions.
 But for sake of saving your mental stability, better to set both:</p>
@@ -87,12 +87,12 @@ you can append to no_proxy entry <em>example.com</em>. Once again, will get back
 <p>So, updated no_proxy can look like that:</p>
 <pre><code class="language-bash">no_proxy=localhost,127.0.0.1,10.0.0.0/8,example.com
 </code></pre>
-<p><img src="/proxy/medium-ok.png" alt="Medium ok"></p>
+<p><img loading="lazy" width="830" height="530" src="/proxy/medium-ok.png" alt="Network diagram: internal connections bypass the proxy using no_proxy"></p>
 <p>With proxy enabled, but not correctly set no_proxy, reaching a hostname that is in the internal network,
 but isn&rsquo;t placed in the no_proxy,
 will result with the connection fail or timeout. That request would get through proxy to the external world,
 where that internal IP won&rsquo;t be known.</p>
-<p><img src="/proxy/medium-fail.png" alt="Medium fail"></p>
+<p><img loading="lazy" width="830" height="530" src="/proxy/medium-fail.png" alt="Network diagram: an internal request fails when it goes through the proxy"></p>
 <p>Whenever you would have a hunch that a connection isn&rsquo;t working because of missing no_proxy entry, try:</p>
 <pre><code class="language-bash">curl --noproxy '*' 10.1.2.3
 </code></pre>
@@ -159,7 +159,7 @@ now try reaching a resource <em>example.com/pkg.gz</em> that is shared on your c
 but achievable only from outside, not achievable on the intranet server. Dirty fix is just cleaning no_proxy.</p>
 <pre><code class="language-bash">no_proxy= NO_PROXY= curl https://example.com/pkg.gz --output pkg.gz
 </code></pre>
-<p><img src="/proxy/hard.png" alt="Hard"></p>
+<p><img loading="lazy" width="830" height="530" src="/proxy/hard.png" alt="Network diagram: reaching a company resource available only outside the intranet"></p>
 <p>It is not an academic discussion, I had that case. It can sound easy, but getting to that conclusion,
 noticing where that resource is available only outside took us too much time.
 And having to diagnose and handle that in a longer script that is a part of infrastructure initialization,

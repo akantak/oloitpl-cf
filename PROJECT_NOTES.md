@@ -19,7 +19,7 @@ The homepage should contain only Aleksander Kantak's name, a profile photo, and 
 - Custom domains: https://oloit.pl and https://www.oloit.pl
 - Domain registrar: OVH; registration remains there and renewal still costs money.
 - Nameservers moved to Cloudflare: `beau.ns.cloudflare.com` and `rachel.ns.cloudflare.com`.
-- User uploads static assets manually through Cloudflare dashboard to the existing Worker. Do not create another Worker or a Sites-hosted replacement by default.
+- Git deployment is now the intended workflow: connect `akantak/oloitpl-cf` to the existing `blog` Worker. ZIP upload remains a fallback. Do not create another Worker or a Sites-hosted replacement by default.
 - Account namespace `ajkantak.workers.dev` is not itself a deployable Worker homepage; default Worker URLs include the Worker name.
 - Preserve email DNS records when changing DNS.
 
@@ -93,3 +93,9 @@ All pages now use shared CSS variables, a consistent reading width, serif headin
 ## Git deployment setup
 
 Remote discovered: `https://github.com/akantak/oloitpl-cf.git`, branch `main`. Added root `wrangler.jsonc` targeting Worker `blog`, assets `./dist`, custom 404 handling, and existing apex/www custom domains. Cloudflare Worker Settings → Build should connect that repository with an empty build command, deploy command `npx wrangler deploy`, and repository root as root directory. No application secrets required. Config and pending style changes have not been committed or pushed by the assistant. Git integration has not been verified connected.
+
+## Whole-repository review
+
+Reviewed all six HTML pages, shared CSS, images, seven Excalidraw JSON files, redirects, sitemap, Git state, Wrangler config and documentation. Added missing descriptions for imported articles and structured publication metadata for the proxy article; removed Medium RSS tracking parameters from source links and metadata; added image dimensions and more descriptive alt text; added missing homepage/404 skip links. Original article prose, examples and dates were preserved. README now leads with Git deployment and explains local-preview limitations. Added ignores for local Wrangler/node/Python output. The user's existing staged changes were preserved; review edits remain unstaged. Config syntax and local site checks passed; no live deployment performed.
+
+Final review validation: six pages passed strict HTML nesting, local links and fragment resolution, image dimensions, page descriptions/canonicals, all original dates and JSON-LD, sitemap URLs, redirect destinations, Wrangler JSON, Excalidraw JSON, and exact ZIP-to-dist comparison. Both staged and unstaged whitespace checks passed. Safari preview attempt timed out; visual QA remains unverified.

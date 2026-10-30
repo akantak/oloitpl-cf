@@ -1,24 +1,54 @@
-# Homepage and blog
+# Personal homepage and blog
 
-Upload `oloit-home-and-blog.zip` as a new deployment of the existing Cloudflare `blog` Worker. Keep its custom domains. No build step is required.
+A standalone, buildless HTML/CSS site. All deployment inputs live in this repository; Hugo and parent directories are not required.
 
-- `/`: minimal homepage with GitHub avatar and profile links
-- `/blog/`: article list, newest first
-- `/blog/corporate-proxy/`: existing proxy article, 22 November 2025
-- `/blog/forgot-to-start-tmux/`: Medium article, 5 October 2023
-- `/blog/aliens-and-decimal-systems/`: Medium article, 13 October 2022
+## Deploy from GitHub
 
-Medium articles were imported from the author's public RSS feed with their original publication dates and complete bodies. Four article images are hosted locally; original image credits and references are retained. Medium tracking pixels were removed. Both imported articles end with a Medium source link. Existing Hugo article URLs redirect to the proxy article.
+Connect `akantak/oloitpl-cf` to the existing Cloudflare Worker **blog** under **Settings → Build**:
 
-Edit the HTML and CSS directly, then ZIP the contents of `dist`, with index.html at the root. Local links, images, publication dates, code blocks, and redirect targets were checked. Browser layout has not been verified in this environment.
+| Setting | Value |
+| --- | --- |
+| Production branch | `main` |
+| Root directory | Repository root (blank or `/`) |
+| Build command | Empty |
+| Deploy command | `npx wrangler deploy` |
+| Application variables/secrets | None |
 
-## Deploy automatically from GitHub
+Use Cloudflare's default build authentication. `wrangler.jsonc` serves `dist/`, enables the custom 404 page, and declares `oloit.pl` and `www.oloit.pl`. Commit and push changes to trigger deployment once the Git integration is connected. Do not set the root directory to `dist`.
 
-Repository: `akantak/oloitpl-cf`, production branch: `main`. Connect the repository from the existing `blog` Worker's Settings → Build page.
+## Edit and preview
 
-- Root directory: repository root (`/` or leave blank)
-- Build command: empty (the HTML/CSS files are ready to serve)
-- Deploy command: `npx wrangler deploy`
-- Build variables/secrets: none needed for this site; use Cloudflare's default build authentication
+- `dist/index.html`: homepage, profile photo, GitHub/LinkedIn/Blog links.
+- `dist/blog/index.html`: article index, newest first.
+- `dist/blog/*/index.html`: articles; preserve original dates, code examples, credits, and source links.
+- `dist/style.css`: shared styles.
+- `dist/images/` and `dist/proxy/`: public images.
+- `others/excalidraws/proxy/`: editable diagram sources, excluded from deployment.
+- `dist/_redirects`: old article URLs pointing to the proxy article.
+- `dist/sitemap.xml`: update when adding or removing a page.
 
-`wrangler.jsonc` targets Worker `blog`, serves `dist/`, and declares both existing custom domains. Commit and push the config and site changes before triggering deployment. Do not set the root directory to `dist`: Wrangler's config is at the repository root. ZIP uploads are optional once Git deployment is connected.
+From the repository root, preview the static pages with:
+
+```sh
+python3 -m http.server 8765 --directory dist
+```
+
+Open `http://localhost:8765`. This simple server does not process Cloudflare `_redirects` or replicate its custom 404 routing; check those after deployment. If Wrangler is available, `npx wrangler dev` previews the actual Worker configuration.
+
+## Articles
+
+| URL | Original date |
+| --- | --- |
+| `/blog/corporate-proxy/` | 22 November 2025 |
+| `/blog/forgot-to-start-tmux/` | 5 October 2023 |
+| `/blog/aliens-and-decimal-systems/` | 13 October 2022 |
+
+The two older articles were imported from the author's Medium RSS feed. Each keeps its original text, date, images and references, and ends with a Medium source link. Article images are hosted locally; the homepage avatar loads directly from GitHub.
+
+## Optional manual upload
+
+`oloit-home-and-blog.zip` is an ignored fallback artifact. Package only the contents of `dist/`, with `index.html` at the ZIP root. Upload as a new deployment of the existing `blog` Worker. Git deployment does not need this ZIP.
+
+## Verification
+
+Local checks cover HTML structure, local links and fragments, metadata, publication dates, structured data, sitemap and redirect targets. Browser rendering and Cloudflare deployment behavior still require preview/live checks. See `PROJECT_NOTES.md` for the last verified state and infrastructure context.
