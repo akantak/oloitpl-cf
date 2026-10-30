@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>All those things about corpo proxy I wish I knew from the day one · Aleksander Kantak</title><meta name="description" content="A practical guide to corporate proxies, VPN connections and no_proxy troubleshooting, with diagrams and configuration examples."><link rel="canonical" href="https://oloit.pl/blog/corporate-proxy/"><link rel="stylesheet" href="/style.css"></head><body><a class="skip" href="#article">Skip to article</a><header><a class="brand" href="/">Aleksander Kantak</a><a href="/blog/">Blog</a></header><main id="article"><article><p class="eyebrow">Networking / Troubleshooting</p><h1>All those things about corpo proxy I wish I knew from the day one</h1><p class="byline">Aleksander Kantak · <time datetime="2025-11-22">22 November 2025</time></p><nav aria-label="Article contents"><details><summary>In this article</summary><div class="links"><a href="#level-none">Level none</a><a href="#level-entry">Level entry</a><a href="#level-easy">Level easy</a><a href="#level-easy-1">Level easy+</a><a href="#level-medium">Level medium</a><a href="#level-hard">Level hard</a><a href="#lets-talk-about-no_proxy">Let&rsquo;s talk about no_proxy</a><a href="#sum-up">Sum up</a></div></details></nav><p>Corporations with hardware products likes guarding their assortment (both hardware and people) with proxy.
+I got that pleasure to work for a few companies that used company proxy and spent countless hours on troubleshooting
+things that finally turned out to be proxy/no_proxy issues.</p>
+<p>What is a proxy? As Wikipedia says:</p>
+<blockquote>
+<p>Instead of connecting directly to a server that can fulfill a request for a resource,
+such as a file or web page, the client directs the request to the proxy server,
+which evaluates the request and performs the required network transactions.
+(&hellip;) provide additional benefits such as load balancing, privacy, or security.</p>
+</blockquote>
+<p>And allows blocking a request when someone uploads gigabytes of confidential documents.
+Or blocks some nasty pages. Doesn&rsquo;t sound bad, right?</p>
+<p>Do you know that saying &ldquo;it&rsquo;s always DNS&rdquo;? Well, when working behind proxy, and you have a connection issue,
+it&rsquo;s in 99% cases proxy/no_proxy matter. With proxy, handling connections can be more complicated.
+Hopefully, after reading that article, it won&rsquo;t be THAT complicated.
+I think understanding types of connections that can happen in the network behind proxy is a necessity.</p>
+<p>Let&rsquo;s say you just started working in a company named <em>Example</em>,
+with a company domain named <em>example.com</em>.
+Day one, you got access to the corporation&rsquo;s VPN to connect to the company&rsquo;s network.</p>
+<p>Let&rsquo;s iterate over a few levels of proxy interactions.</p>
+<h2 id="level-none">Level none</h2>
+<p>You have not connected to VPN yet, connection doesn&rsquo;t need any proxy yet. Plain and simple.</p>
+<p><img src="/proxy/none.png" alt="None"></p>
+<h2 id="level-entry">Level entry</h2>
+<p>You connect to that corpo VPN and you are trying to access intranet (ex. that internal news page)
+on URL <em><a href="http://intranet.example.com">http://intranet.example.com</a></em> or your team&rsquo;s test environment at <em><a href="http://10.1.2.3">http://10.1.2.3</a></em>. That&rsquo;s easy.
+Neither proxy nor no_proxy set yet, and it works out-of-the-box.</p>
+<p><img src="/proxy/entry.png" alt="Entry"></p>
+<h2 id="level-easy">Level easy</h2>
+<p>Now, after you&rsquo;ve read all those great news that your employer has shared, completed trainings on internal web page,
+it&rsquo;s time to access public pages. Let&rsquo;s start small, with accessing <a href="http://google.com">http://google.com</a>.
+Typing google.com, ENTER, and&hellip;
+Infinite loading page. Did you type that incorrectly? Did your internet connection stop working?
+Nope, it&rsquo;s proxy issue. Soon you will know how to fix it.</p>
+<h3 id="put-together-the-proxy-string">Put together the proxy string</h3>
+<p>First things first, let&rsquo;s build the proxy URL. Someone mentioned proxy server available on <em>proxy.example.com</em>.</p>
+<blockquote>
+<p>Do you need credentials to authorize to proxy?
+If so, it would be <em>username:password@proxy.example.com</em>.</p>
+</blockquote>
+<p>Probably proxy over HTTP and on some arbitrary port, let&rsquo;s say 8080.
+So final URL looks like:</p>
+<pre><code class="language-txt">http://proxy.example.com:8080
+</code></pre>
+<p>Easy, right?</p>
+<h3 id="use-that-proxy-string">Use that proxy string</h3>
+<p>Where to put it? In the browser, open settings, search for proxy, set it to custom and put it there.
+Don&rsquo;t trust the &ldquo;use system settings&rdquo;, for now set your values explicitly on your own.
+Set the HTTP proxy to the value we just prepared.
+In HTTPS proxy use exactly the same value (unless your corpo has different port for HTTPS).</p>
+<blockquote>
+<p>When setting HTTPS proxy, do NOT change <em>http://</em> to <em>https://</em>. It has to be <em>http://</em> for both.</p>
+</blockquote>
+<p>For no proxy set:</p>
+<pre><code class="language-bash">localhost,127.0.0.1
+</code></pre>
+<p>Just for now, in case you would test something locally. Save, and we are all set.
+Back to the Google page. Refresh, and it SHOULD work now.</p>
+<p><img src="/proxy/easy.png" alt="Easy"></p>
+<h2 id="level-easy-1">Level easy+</h2>
+<p>You did your things there time to finish your day one and disconnect the VPN.</p>
+<p>But beware, because once you disconnect the VPN, external connections would stop working
+as proxy server won&rsquo;t be achievable. So you need to disable that proxy settings then.</p>
+<p>Don&rsquo;t do it manually,
+removing proxy entry in the browser, or switching to &ldquo;no proxy&rdquo; setting. To do that switching easily,
+I recommend using a browser extension like Proxy SwitchyOmega or similar.</p>
+<p><img src="/proxy/easy-plus.png" alt="Easy plus"></p>
+<h2 id="level-medium">Level medium</h2>
+<p>Let&rsquo;s start using shell with proxy. Good tools should handle both lower case and upper case proxy definitions.
+But for sake of saving your mental stability, better to set both:</p>
+<pre><code class="language-bash">http_proxy=http://proxy.example.com:8080
+https_proxy=http://proxy.example.com:8080
+no_proxy=localhost,127.0.0.1
+HTTP_PROXY=${http_proxy}
+HTTPS_PROXY=${https_proxy}
+NO_PROXY=${no_proxy}
+</code></pre>
+<p>Now you should be able to reach the public things, like <em>google.com</em>.</p>
+<p>But once you got to a point where you would need to connect hosts from your internal network,
+it&rsquo;s &ldquo;where the stairs begin&rdquo; (polish saying for &ldquo;here comes the hard part&rdquo;).
+Hopefully you would be able to figure out some nice network range like 10.0.0.0/8
+to get all internal IPs in one entry, and your tool would support range in no_proxy. Will get back to that later.
+At least, let&rsquo;s start with adding to no_proxy those IPs that you want to connect immediately.
+If using the FQDNs (fully qualified domain names), like myserver1.lab1.example.com,
+you can append to no_proxy entry <em>example.com</em>. Once again, will get back to that later.</p>
+<p>So, updated no_proxy can look like that:</p>
+<pre><code class="language-bash">no_proxy=localhost,127.0.0.1,10.0.0.0/8,example.com
+</code></pre>
+<p><img src="/proxy/medium-ok.png" alt="Medium ok"></p>
+<p>With proxy enabled, but not correctly set no_proxy, reaching a hostname that is in the internal network,
+but isn&rsquo;t placed in the no_proxy,
+will result with the connection fail or timeout. That request would get through proxy to the external world,
+where that internal IP won&rsquo;t be known.</p>
+<p><img src="/proxy/medium-fail.png" alt="Medium fail"></p>
+<p>Whenever you would have a hunch that a connection isn&rsquo;t working because of missing no_proxy entry, try:</p>
+<pre><code class="language-bash">curl --noproxy '*' 10.1.2.3
+</code></pre>
+<blockquote>
+<p>Please notice there is no dash between &rsquo;no&rsquo; and &lsquo;proxy&rsquo;, and there&rsquo;s a single quote around star sign.</p>
+</blockquote>
+<h3 id="make-it-permanent">Make it permanent</h3>
+<p>Those environment proxy variables, set only in current shell session, will be gone once the session got terminated.
+To always have those handy, add those to <em>~/.bashrc</em> (or whatever different initialization file your shell has).
+Don&rsquo;t forget to source the <em>.bashrc</em> file or restart the shell once you&rsquo;ve changed something there.</p>
+<p>Nice, so are the proxy issues gone? Nope. Whenever you would run something with sudo, like <em>sudo apt update</em>,
+that command won&rsquo;t have the proxy settings in that shell. If you can, worth setting those in <em>/etc/profile</em> too.
+Or wherever are global variables for your shell.</p>
+<p>Even if you have all those things set, some applications still won&rsquo;t care and won&rsquo;t read those environment variables,
+and would need proxy set in their own config.
+There are different ways of doing that for different apps.
+Below, there are a few examples that I had to find out the hard way.</p>
+<h3 id="docker-proxy">Docker proxy</h3>
+<p>File <em>~/.docker/config.json</em> or <em>/etc/docker/config.json</em>:</p>
+<pre><code class="language-json">{
+ &quot;proxies&quot;: {
+   &quot;default&quot;: {
+     &quot;httpProxy&quot;: &quot;http://proxy.example.com:8080&quot;,
+     &quot;httpsProxy&quot;: &quot;http://proxy.example.com:8080&quot;,
+     &quot;noProxy&quot;: &quot;localhost,127.0.0.1&quot;
+   }
+ }
+}
+</code></pre>
+<h3 id="systemd-service">Systemd service</h3>
+<pre><code class="language-bash">[Service]
+Environment=&quot;HTTP_PROXY=http://proxy.example.com:8080&quot;
+Environment=&quot;HTTPS_PROXY=http://proxy.example.com:8080&quot;
+Environment=&quot;NO_PROXY=localhost,127.0.0.1&quot;
+</code></pre>
+<h3 id="maven-proxy">Maven proxy</h3>
+<p>File <em>~/.m2/settings.xml</em>:</p>
+<pre><code class="language-xml">&lt;settings&gt;
+  &lt;proxies&gt;
+    &lt;proxy&gt;
+      &lt;id&gt;proxy-http&lt;/id&gt;
+      &lt;active&gt;true&lt;/active&gt;
+      &lt;protocol&gt;http&lt;/protocol&gt;
+      &lt;host&gt;proxy.example.com&lt;/host&gt;
+      &lt;port&gt;8080&lt;/port&gt;
+    &lt;/proxy&gt;
+    &lt;proxy&gt;
+      &lt;id&gt;proxy-https&lt;/id&gt;
+      &lt;active&gt;true&lt;/active&gt;
+      &lt;protocol&gt;https&lt;/protocol&gt;
+      &lt;host&gt;proxy.example.com&lt;/host&gt;
+      &lt;port&gt;8080&lt;/port&gt;
+    &lt;/proxy&gt;
+  &lt;/proxies&gt;
+&lt;/settings&gt;
+</code></pre>
+<h3 id="npm-proxy">NPM proxy</h3>
+<pre><code class="language-bash">npm config set https-proxy http://proxy.example.com:8080
+npm config set http-proxy http://proxy.example.com:8080
+</code></pre>
+<h2 id="level-hard">Level hard</h2>
+<p>Hopefully you would never encounter that. With all those settings that are set as good as that can be,
+now try reaching a resource <em>example.com/pkg.gz</em> that is shared on your company domain,
+but achievable only from outside, not achievable on the intranet server. Dirty fix is just cleaning no_proxy.</p>
+<pre><code class="language-bash">no_proxy= NO_PROXY= curl https://example.com/pkg.gz --output pkg.gz
+</code></pre>
+<p><img src="/proxy/hard.png" alt="Hard"></p>
+<p>It is not an academic discussion, I had that case. It can sound easy, but getting to that conclusion,
+noticing where that resource is available only outside took us too much time.
+And having to diagnose and handle that in a longer script that is a part of infrastructure initialization,
+having that proxy exception, can be a real pain. Keep in mind it can happen when reaching your company&rsquo;s resources.</p>
+<h2 id="lets-talk-about-no_proxy">Let&rsquo;s talk about no_proxy</h2>
+<p>Unfortunately, the fact that you are able to successfully pass the proxy settings to the app that needs it,
+is just a half of the story. Setting correctly <em>no_proxy</em> is another half.</p>
+<p>Depends on the app that would use the <em>no_proxy</em> environment variables (or even no proxy set directly in the app),
+the type of the application affects the <em>no_proxy</em> parsing methods. A few examples below:</p>
+<ul>
+<li>The domain has to be defined like: <em>example.com</em> sometimes <em>.example.com</em> and sometimes even <em>*.example.com</em>.</li>
+<li>The IPs range (CIDR block) like <em>10.0.0.0/8</em> can be not supported at all,
+forcing all IPs to be defined explicitly.</li>
+</ul>
+<p>Stan Hu did a good job categorizing handling of proxy/no_proxy between technologies stacks, worth checking here:
+<a href="https://about.gitlab.com/blog/we-need-to-talk-no-proxy/#no_proxy-format">https://about.gitlab.com/blog/we-need-to-talk-no-proxy/#no_proxy-format</a>.
+Additionally, treating about proxy setting generally too, whole article is worth checking.</p>
+<p>Generally, the rule of thumb should be, whenever local connection in an app doesn&rsquo;t work, check <em>no_proxy</em> first.
+The fact that it works fine for one tool, doesn&rsquo;t mean it would do the same for the other.
+Especially between different frameworks or technologies. Always keep that in mind.</p>
+<h2 id="sum-up">Sum up</h2>
+<p>I&rsquo;m glad I&rsquo;ve finally written that down. There were plenty of debugging sessions caused by that kind of proxy issues.
+I hope that you would be able to overcome those easily. Or at least, keep proxy as one of the usual suspects.
+Good luck!</p>
+<p class="back-link"><a href="/blog/">← All articles</a></p></article></main><footer>Written by Aleksander Kantak · <a href="#article">Back to top ↑</a></footer></body></html>

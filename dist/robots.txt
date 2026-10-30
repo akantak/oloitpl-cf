@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://oloit.pl/sitemap.xml

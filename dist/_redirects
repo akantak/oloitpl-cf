@@ -1,0 +1,6 @@
+/blog/posts/proxy /blog/corporate-proxy/ 301
+/blog/posts/proxy/ /blog/corporate-proxy/ 301
+/posts/proxy /blog/corporate-proxy/ 301
+/posts/proxy/ /blog/corporate-proxy/ 301
+/blog/proxy /blog/corporate-proxy/ 301
+/blog/proxy/ /blog/corporate-proxy/ 301
